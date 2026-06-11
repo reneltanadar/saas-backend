@@ -56,3 +56,16 @@ async def user_update(user_id:int,updates:UpdateUser):
             user.update(update_data)
             return user
     raise HTTPException(status_code=404,detail="User Not Found")
+
+
+@router.delete("/{user_id}",status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(user_id:int):
+    for index,user in enumerate(users):
+        if user["id"] == user_id:
+            users.pop(index)
+            return
+
+    raise HTTPException(
+        status_code=404,
+        detail="User Not Found"
+    ) 
