@@ -1,71 +1,42 @@
-from fastapi import APIRouter,HTTPException,status
+from fastapi import APIRouter,status
 from app.schemas.user import UpdateUser,UserCreate,UserResponse
+from app.services import user_services
 
 router=APIRouter(prefix="/users",tags=["Users"])
 
-users=[]
-counter =1
-
-
+# to get all users
 @router.get("",response_model=list[UserResponse])
 async def get_users():
-    return users
+    return user_services.get_all_users()
 
-# to get specific users
+
+# to get specific users by name
 @router.get("/search")
 async def search_users(name: str =None,limit:int=10):
-    results=users
+    return user_services.search_user(name,limit)
 
-    if name:
-        results=[u for u in users if name.lower() in u["name"].lower() ]
 
-    return{
-        "users": results[:limit],
-        "count":len(results[:limit])
-    }
-
+# to get user by id
 @router.get("/{user_id}",response_model=UserResponse)
 async def get_user(user_id:int):
-    for user in users:
-        if user["id"]==user_id:
+    return user_services.get_user_by_id(user_id)
 
-            return user
-        
-    raise HTTPException(status_code=404,detail="User Not Found")
 
+# to create users
 @router.post("",status_code=status.HTTP_201_CREATED,response_model=UserResponse)
 async def create_users(user :UserCreate):
-    global counter
-    new_user={
-        "id":counter,
-        **user.model_dump()
-    }
-    counter+=1
-    for existing in users:
-        if existing["email"]==new_user["email"]:
-            raise HTTPException(status_code=404,detail="Email already Exists")
-    users.append(new_user)
-    return new_user
+    return user_services.create_user(user)
 
 
+# to update user
 @router.patch("/{user_id}",response_model=UserResponse)
 async def user_update(user_id:int,updates:UpdateUser):
-    for user in users:
-        if user["id"]==user_id:
-            update_data=updates.model_dump(exclude_unset=True)
-            user.update(update_data)
-            return user
-    raise HTTPException(status_code=404,detail="User Not Found")
+    return user_services.update_user(user_id,updates)
 
 
+# to delete user by id
 @router.delete("/{user_id}",status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(user_id:int):
-    for index,user in enumerate(users):
-        if user["id"] == user_id:
-            users.pop(index)
-            return
+    return user_services.delete_user(user_id)
 
-    raise HTTPException(
-        status_code=404,
-        detail="User Not Found"
-    ) 
+    
