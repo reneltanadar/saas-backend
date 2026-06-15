@@ -30,3 +30,9 @@ class UpdateUser(BaseModel):
     name:Optional[str] =None
     email:Optional[str] =None
     age:Optional[int] =None
+
+class PaginatedUsers(BaseModel):
+    total:int
+    skip:int
+    limit:int
+    users:list[UserResponse]

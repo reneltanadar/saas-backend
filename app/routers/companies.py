@@ -1,12 +1,14 @@
-from fastapi import APIRouter,status
-from app.schemas.company import CompanyCreate,CompanyResponse,CompanyUpdate
+from fastapi import APIRouter,status,Query
+from app.schemas.company import CompanyCreate,CompanyResponse,CompanyUpdate,PaginatedCompanies
 from app.services import company_services
 
 router = APIRouter(prefix="/companies",tags=["Companies"])
 
-@router.get("",response_model=list[CompanyResponse])
-async def get_all_companies():
-    return company_services.get_all_companies()
+@router.get("",response_model=PaginatedCompanies)
+async def get_all_companies(skip:int=Query(0,ge=0),
+                            limit:int=Query(0,ge=1,le=100),
+                            sort_by:str="id"):
+    return company_services.get_all_companies(skip,limit,sort_by)
 
 @router.get("/{company_id}",response_model=CompanyResponse)
 async def get_company_id(company_id:int):

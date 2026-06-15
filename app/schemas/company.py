@@ -20,3 +20,9 @@ class CompanyResponse(BaseModel):
     id:int
     name:str
     industry:Optional[str]=None
+
+class PaginatedCompanies(BaseModel):
+    total:int
+    skip:int
+    limit:int
+    companies:list[CompanyResponse]

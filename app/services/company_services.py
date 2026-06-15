@@ -5,8 +5,25 @@ companies=[]
 counter=1
 
 # returns all companies
-def get_all_companies():
-    return companies
+def get_all_companies(skip:int=0,limit:int=10,sort_by="id"):
+    valid_sort_field={"id","name","industry"}
+
+    if sort_by not in valid_sort_field:
+        sort_by="id"
+
+    sorted_companies =sorted(
+        companies,
+        key=lambda c:(c.get(sort_by) or "")
+        )
+    
+    page=sorted_companies[skip:skip+limit]
+
+    return {
+        "total":len(companies),
+        "skip":skip,
+        "limit":limit,
+        "companies":page
+    }
 
 # return company by id
 def get_company_by_id(company_id:int):

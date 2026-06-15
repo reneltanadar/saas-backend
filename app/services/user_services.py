@@ -4,8 +4,24 @@ from app.schemas.user import UserCreate,UpdateUser
 users=[]
 _counter=1
 
-def get_all_users():
-    return users
+def get_all_users(skip:int=0,limit:int=10,sort_by:str="id"):
+    valid_sort_field ={"id","name","email"}
+
+    if sort_by not in valid_sort_field:
+        sort_by="id"
+
+    sorted_users = sorted(
+        users,
+        key=lambda u:u[sort_by]
+    )
+    page =sorted_users[skip:skip+limit]
+
+    return{
+        "total":len(users),
+        "skip":skip,
+        "limit": limit,
+        "users":page
+    }
 
 def search_user(name:str | None, limit:int):
     result =users

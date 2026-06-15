@@ -1,13 +1,16 @@
-from fastapi import APIRouter,status
-from app.schemas.user import UpdateUser,UserCreate,UserResponse
+from fastapi import APIRouter,status,Query
+from app.schemas.user import UpdateUser,UserCreate,UserResponse,PaginatedUsers
 from app.services import user_services
 
 router=APIRouter(prefix="/users",tags=["Users"])
 
 # to get all users
-@router.get("",response_model=list[UserResponse])
-async def get_users():
-    return user_services.get_all_users()
+@router.get("",response_model=PaginatedUsers)
+async def get_users(skip:int=Query(0,ge=0),
+                    limit:int=Query(10,ge=1,le=100),
+                    sort_by:str="id"):
+    
+    return user_services.get_all_users(skip,limit,sort_by)
 
 
 # to get specific users by name
