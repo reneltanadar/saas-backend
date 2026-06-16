@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from app.schemas.user import UserCreate,UpdateUser
+from app.errors import NotFoundError,ConflictError
 
 users=[]
 _counter=1
@@ -40,13 +41,13 @@ def get_user_by_id(user_id:int):
         if user["id"] == user_id:
             return user
         
-    raise HTTPException(status_code=404,detail="User Not Found")
+    raise NotFoundError("User")
 
 def create_user(user_data:UserCreate):
     global _counter
     for user in users:
         if user["email"]==user_data.email:
-            raise HTTPException(status_code=400,detail="Email already exists")
+            raise ConflictError("Email already exists")
         
     new_user={
         "id": _counter,

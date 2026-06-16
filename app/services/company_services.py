@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from app.schemas.company import CompanyCreate,CompanyUpdate
+from app.errors import NotFoundError
 
 companies=[]
 counter=1
@@ -31,10 +32,7 @@ def get_company_by_id(company_id:int):
         if company["id"]==company_id:
             return company
     
-    raise HTTPException(
-        status_code=404,
-        detail="Company Not Found"
-    )
+    raise NotFoundError("Company")
 
 def create_company(company_data:CompanyCreate):
     global counter
