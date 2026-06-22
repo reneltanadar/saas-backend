@@ -33,7 +33,28 @@ Companies
 - PATCH /companies/{id}
 - DELETE /companies/{id}
 
+Database Setup
+
+1. Install PostgreSQL
+
+2. Create database:
+
+CREATE DATABASE saas_backend;
+
+3. Create a .env file:
+
+DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/saas_backend
+
+4. Run migrations:
+
+alembic upgrade head
+
+5. Start server:
+
+uvicorn main:app --reload
+
 Docs
 
 Visit:
 http://localhost:8000/docs
+
