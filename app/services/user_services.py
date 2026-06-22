@@ -1,73 +1,69 @@
-from fastapi import HTTPException
 from app.schemas.user import UserCreate,UpdateUser
 from app.errors import NotFoundError,ConflictError
+from sqlalchemy.orm import Session
+from app.models.user import User
 
-users=[]
-_counter=1
 
-def get_all_users(skip:int=0,limit:int=10,sort_by:str="id"):
+
+def get_all_users(db:Session, skip:int=0,limit:int=10,sort_by:str="id")->dict:
     valid_sort_field ={"id","name","email"}
 
     if sort_by not in valid_sort_field:
         sort_by="id"
 
-    sorted_users = sorted(
-        users,
-        key=lambda u:u[sort_by]
-    )
-    page =sorted_users[skip:skip+limit]
-
+    column = getattr(User, sort_by)
+    total = db.query(User).count()
+    users = db.query(User).order_by(column).offset(skip).limit(limit).all()
+    
     return{
-        "total":len(users),
+        "total":total,
         "skip":skip,
         "limit": limit,
-        "users":page
+        "users":users
     }
 
-def search_user(name:str | None, limit:int):
-    result =users
+def search_user(db:Session,name:str | None, limit:int)->dict:
+    query =db.query(User)
     if name:
-        result=[
-            u for u in users if name.lower() in u["name"].lower()
-        ] 
+        query=query.filter(User.name.ilike(f"%{name}%"))
+
+    results = query.limit(limit).all()
 
     return {
-        "user": result[:limit],
-        "count":len(result[:limit])
+        "user": results,
+        "count":len(results)
     }
 
-def get_user_by_id(user_id:int):
-    for user in users:
-        if user["id"] == user_id:
-            return user
-        
-    raise NotFoundError("User")
+def get_user_by_id(db:Session,user_id:int)->User:
+    user =db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise NotFoundError("User")
+    return user
 
-def create_user(user_data:UserCreate):
-    global _counter
-    for user in users:
-        if user["email"]==user_data.email:
-            raise ConflictError("Email already exists")
-        
-    new_user={
-        "id": _counter,
-        **user_data.model_dump()
-    }
-
-    _counter+=1
-    users.append(new_user)
+def create_user(db:Session,user_data:UserCreate)->User:
+    existing = db.query(User).filter(User.email == user_data.email).first()
+    if existing:
+        raise ConflictError("Email Already Exists")
+    
+    new_user= User(**user_data.model_dump())
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
     return new_user
 
-def update_user(user_id:int,updates:UpdateUser):
-    user=get_user_by_id(user_id)
+def update_user(db:Session,user_id:int,updates:UpdateUser)->User:
+    user=get_user_by_id(db,user_id)
     update_data= updates.model_dump(exclude_unset=True)
 
-    user.update(update_data)
-
+    for field,value in update_data.items():
+        setattr(user,field,value)
+    db.commit()
+    db.refresh(user)
     return user
         
 
-def delete_user(user_id:int):
-    user= get_user_by_id(user_id)
+def delete_user(db:Session,user_id:int)->None:
+    user= get_user_by_id(db,user_id)
+    db.delete(user)
+    db.commit()
 
-    users.remove(user)
