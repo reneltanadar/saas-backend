@@ -1,10 +1,11 @@
-from pydantic import BaseModel,field_validator
+from pydantic import BaseModel,field_validator,EmailStr
 from typing import Optional
 from datetime import datetime
 
 class UserCreate(BaseModel):
     name:str
-    email:str
+    email:EmailStr
+    password:str
     age: Optional[int] =None
     company_id: Optional[int] =None
 
@@ -15,6 +16,12 @@ class UserCreate(BaseModel):
             raise ValueError("Name Cannot be empty")
         return v.strip()
     
+    @field_validator("password")
+    @classmethod
+    def valid_password(cls,v):
+        if len(v) < 8:
+            raise ValueError("Password must be atleast of 8 characters")
+        return v
     @field_validator("age")
     @classmethod
     def valid_age(cls,v):
@@ -25,7 +32,7 @@ class UserCreate(BaseModel):
 class UserResponse(BaseModel):
     id:int
     name:str
-    email:str
+    email:EmailStr
     age: Optional[int] =None
     is_active:bool
     company_id: Optional[int] =None
@@ -36,7 +43,7 @@ class UserResponse(BaseModel):
 
 class UpdateUser(BaseModel):
     name:Optional[str] =None
-    email:Optional[str] =None
+    email:Optional[EmailStr] =None
     age:Optional[int] =None
     company_id: Optional[int] =None
 
