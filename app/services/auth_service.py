@@ -13,7 +13,9 @@ def register_user(db:Session,data:RegisterRequest)->User:
     new_user=User(
         name=data.name,
         email=data.email,
-        hashed_password=hash_password(data.password)
+        hashed_password=hash_password(data.password),
+        age=data.age,
+        company_id = data.company_id,
     )
     db.add(new_user)
     db.commit()
@@ -31,6 +33,11 @@ def login_user(db:Session,data:LoginRequest)-> User:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
+        )
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is Deactivated"
         )
     return user
 

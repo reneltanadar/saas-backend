@@ -1,9 +1,33 @@
-from pydantic import BaseModel
+from pydantic import BaseModel,EmailStr,field_validator
+from typing import Optional
 
 class RegisterRequest(BaseModel):
     name:str
-    email:str
+    email:EmailStr
     password:str
+    age:Optional[int]=None
+    company_id:Optional[int]=None
+
+    @field_validator("name")
+    @classmethod
+    def empty_name(cls,v):
+        if not v.strip():
+            raise ValueError("Name Cannot be empty")
+        return v.strip()
+    
+    @field_validator("password")
+    @classmethod
+    def valid_password(cls,v):
+        if len(v) < 8:
+            raise ValueError("Password must be atleast of 8 characters")
+        return v
+    
+    @field_validator("age")
+    @classmethod
+    def valid_age(cls,v):
+        if v is not None and v<0:
+            raise ValueError("Age must be Positive")
+        return v
 
 class LoginRequest(BaseModel):
     email:str

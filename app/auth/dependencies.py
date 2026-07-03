@@ -11,19 +11,24 @@ def get_current_user(
         credentials:HTTPAuthorizationCredentials=Depends(bearer_scheme),
         db:Session=Depends(get_db),
 )->User:
-    credential_exceptions= HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                                         detail="Could not validate credentials",
-                                         headers={"WWW-Authenticate":"Bearer"},
-                                         )
-    payload = decode_access_token(credentials.credentials)
-    if payload is None:
-        raise credential_exceptions
     
+    payload = decode_access_token(credentials.credentials)
     user_id=payload.get("sub")
     if user_id is None:
-        raise credential_exceptions
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Couldn't Validate Credentials"
+        )
     
     user=db.query(User).filter(User.id==int(user_id)).first()
     if user is None:
-        raise HTTPException
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Couldn't Validate Credentials"
+        )
+    
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is Deactivated"
+        )
     return user
