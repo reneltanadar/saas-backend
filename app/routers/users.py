@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from app.schemas.user import UpdateUser,UserCreate,UserResponse,PaginatedUsers
 from app.services import user_services
 from app.database import get_db
+from app.auth.dependencies import get_current_user
+from app.models import User
 
 router=APIRouter(prefix="/users",tags=["Users"])
 
@@ -30,19 +32,22 @@ async def get_user(user_id:int,db:Session=Depends(get_db)):
 
 # to create users
 @router.post("",status_code=status.HTTP_201_CREATED,response_model=UserResponse)
-async def create_users(user :UserCreate,db:Session=Depends(get_db)):
+async def create_users(user :UserCreate,db:Session=Depends(get_db),
+                       current_user:User = Depends(get_current_user),):
     return user_services.create_user(db,user)
 
 
 # to update user
 @router.patch("/{user_id}",response_model=UserResponse)
-async def user_update(user_id:int,updates:UpdateUser,db:Session = Depends(get_db)):
+async def user_update(user_id:int,updates:UpdateUser,db:Session = Depends(get_db),
+                      current_user:User=Depends(get_current_user),):
     return user_services.update_user(db,user_id,updates)
 
 
 # to delete user by id
 @router.delete("/{user_id}",status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(user_id:int,db:Session = Depends(get_db)):
+async def delete_user(user_id:int,db:Session = Depends(get_db),
+                      current_user:User=Depends(get_current_user),):
     return user_services.delete_user(db,user_id)
 
     
