@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped,mapped_column,relationship
-from sqlalchemy import String,DateTime
+from sqlalchemy import String,DateTime,ForeignKey
 from datetime import timezone,datetime
 from app.database import Base
 # from typing import TYPE_CHECKING
@@ -21,4 +21,12 @@ class Company(Base):
         datetime.now(timezone.utc)
     )
 
+    tenant_id: Mapped[int|None]= mapped_column(
+            ForeignKey("tenants.id"),nullable=True,index=True
+        )
+    
+    tenant: Mapped["Tenant|None"]= relationship("Tenant",back_populates="companies")
+
     users: Mapped[list["User"]]=relationship("User", back_populates="company")
+
+    
