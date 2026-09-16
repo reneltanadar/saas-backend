@@ -7,6 +7,7 @@ class RegisterRequest(BaseModel):
     password:str
     age:Optional[int]=None
     company_id:Optional[int]=None
+    tenant_id:Optional[int]=None
 
     @field_validator("name")
     @classmethod
@@ -30,7 +31,7 @@ class RegisterRequest(BaseModel):
         return v
 
 class LoginRequest(BaseModel):
-    email:str
+    email:EmailStr
     password:str
 
 class TokenResponse(BaseModel):

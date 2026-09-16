@@ -36,12 +36,13 @@ class UserResponse(BaseModel):
     age: Optional[int] =None
     is_active:bool
     company_id: Optional[int] =None
+    tenant_id: Optional[int] =None
     created_at:datetime
 
     model_config ={"from_attributes": True}
 
 
-class UpdateUser(BaseModel):
+class UserUpdate(BaseModel):
     name:Optional[str] =None
     email:Optional[EmailStr] =None
     age:Optional[int] =None

@@ -23,7 +23,6 @@ async def get_tenant(tenant_id: int, db: Session = Depends(get_db)):
 async def create_tenant(
     data: TenantCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
     return tenant_service.create_tenant(db, data)
 
