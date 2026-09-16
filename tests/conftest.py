@@ -39,3 +39,27 @@ def client(db):
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
+
+
+def create_tenant(client, name: str, slug: str) -> dict:
+    response = client.post("/tenants", json={"name": name, "slug": slug})
+    assert response.status_code == 201
+    return response.json()
+
+
+def register_and_login(client, name: str, email: str, password: str, tenant_id: int) -> str:
+    client.post("/auth/register", json={
+        "name": name,
+        "email": email,
+        "password": password,
+        "tenant_id": tenant_id,
+    })
+    response = client.post("/auth/login", json={
+        "email": email,
+        "password": password,
+    })
+    return response.json()["access_token"]
+
+
+def auth_headers(token: str) -> dict:
+    return {"Authorization": f"Bearer {token}"}
