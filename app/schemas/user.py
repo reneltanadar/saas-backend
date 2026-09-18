@@ -1,6 +1,7 @@
 from pydantic import BaseModel,field_validator,EmailStr
 from typing import Optional
 from datetime import datetime
+from app.models.enums import UserRole
 
 class UserCreate(BaseModel):
     name:str
@@ -8,6 +9,7 @@ class UserCreate(BaseModel):
     password:str
     age: Optional[int] =None
     company_id: Optional[int] =None
+    role:UserRole=UserRole.employee
 
     @field_validator("name")
     @classmethod
@@ -34,6 +36,7 @@ class UserResponse(BaseModel):
     name:str
     email:EmailStr
     age: Optional[int] =None
+    role:str
     is_active:bool
     company_id: Optional[int] =None
     tenant_id: Optional[int] =None

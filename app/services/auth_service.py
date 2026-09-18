@@ -18,6 +18,7 @@ def register_user(db: Session, data: RegisterRequest) -> User:
         hashed_password=hash_password(data.password),
         age=data.age,
         tenant_id=data.tenant_id,
+        role=data.role,
     )
     db.add(new_user)
     db.commit()
@@ -44,5 +45,6 @@ def create_token(user: User) -> dict:
     token = create_access_token(data={
         "sub": str(user.id),
         "tenant_id": user.tenant_id,
+        "role":user.role,
     })
     return {"access_token": token, "token_type": "bearer"}

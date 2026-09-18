@@ -15,23 +15,6 @@ python -m venv venv
 pip install -r requirements.txt
 uvicorn main:app --reload
 
-Endpoints
-
-Users
-
-- GET /users
-- GET /users/{id}
-- POST /users
-- PATCH /users/{id}
-- DELETE /users/{id}
-
-Companies
-
-- GET /companies
-- GET /companies/{id}
-- POST /companies
-- PATCH /companies/{id}
-- DELETE /companies/{id}
 
 Database Setup
 

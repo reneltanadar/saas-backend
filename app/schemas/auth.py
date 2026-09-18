@@ -1,13 +1,14 @@
 from pydantic import BaseModel,EmailStr,field_validator
 from typing import Optional
+from app.models.enums import UserRole
 
 class RegisterRequest(BaseModel):
     name:str
     email:EmailStr
     password:str
     age:Optional[int]=None
-    company_id:Optional[int]=None
     tenant_id:Optional[int]=None
+    role:UserRole=UserRole.employee
 
     @field_validator("name")
     @classmethod

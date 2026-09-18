@@ -2,7 +2,7 @@ from sqlalchemy.orm import Mapped,mapped_column,relationship
 from sqlalchemy import String,DateTime,Boolean,ForeignKey
 from datetime import datetime,timezone
 from app.database import Base
-
+from app.models.enums import UserRole
 
 class User(Base):
     __tablename__="users"
@@ -19,6 +19,8 @@ class User(Base):
     age: Mapped[int | None]= mapped_column(nullable= True)
 
     hashed_password: Mapped[str]= mapped_column(String(255),nullable=False)
+
+    role: Mapped[str]= mapped_column(String(50),nullable=False,default=UserRole.employee)
 
     is_active:Mapped[bool] =mapped_column(Boolean,default=True)
 
