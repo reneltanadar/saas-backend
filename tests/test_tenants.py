@@ -136,6 +136,7 @@ def test_user_without_tenant_cannot_access_companies(client):
         "name": "NoTenant",
         "email": "notenant@test.com",
         "password": "secret123",
+        "role":"admin"
     })
     login = client.post("/auth/login", json={
         "email": "notenant@test.com",

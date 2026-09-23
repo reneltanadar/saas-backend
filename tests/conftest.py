@@ -7,18 +7,16 @@ from main import app
 
 TEST_DATABASE_URL = "sqlite:///./test.db"
 
-engine=create_engine(TEST_DATABASE_URL,
-                     connect_args={"check_same_thread":False})
-
-TestingSessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
+engine = create_engine(
+    TEST_DATABASE_URL,
+    connect_args={"check_same_thread": False}
 )
+
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 @pytest.fixture(scope="function")
 def db():
-
     Base.metadata.create_all(bind=engine)
     session = TestingSessionLocal()
     try:
@@ -27,19 +25,22 @@ def db():
         session.close()
         Base.metadata.drop_all(bind=engine)
 
+
 @pytest.fixture(scope="function")
 def client(db):
-    def overrride_get_db():
+    def override_get_db():
         try:
             yield db
         finally:
             pass
-            
-    app.dependency_overrides[get_db]= overrride_get_db
+
+    app.dependency_overrides[get_db] = override_get_db
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
 
+
+# ── helpers ──────────────────────────────────────────────
 
 def create_tenant(client, name: str, slug: str) -> dict:
     response = client.post("/tenants", json={"name": name, "slug": slug})
@@ -47,12 +48,20 @@ def create_tenant(client, name: str, slug: str) -> dict:
     return response.json()
 
 
-def register_and_login(client, name: str, email: str, password: str, tenant_id: int) -> str:
+def register_and_login(
+    client,
+    name: str,
+    email: str,
+    password: str,
+    tenant_id: int,
+    role: str = "admin",
+) -> str:
     client.post("/auth/register", json={
         "name": name,
         "email": email,
         "password": password,
         "tenant_id": tenant_id,
+        "role": role,
     })
     response = client.post("/auth/login", json={
         "email": email,

@@ -57,6 +57,11 @@ def require_admin(current_user:User=Depends(get_current_user),)->User:
     return current_user
 
 def require_employee(current_user:User=Depends(get_current_user),)->User:
+    if current_user.tenant_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not assigned to a tenant",
+        )
     if current_user.role not in (UserRole.admin,UserRole.employee):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
