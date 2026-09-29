@@ -74,6 +74,15 @@ Register a user with that tenant: POST /auth/register with tenant_id
 Login to get a token: POST /auth/login
 All subsequent requests are automatically scoped to that tenant
 
+## Roles & Permissions
+| Role | Companies | Users |
+|------|-----------|-------|
+| admin| Full CRUD | Full CRUD |
+| employee | Read only | Read own profile only |
+
+Roles are assigned at registration via the `role` field.
+Default role is `employee` if not specified.
+
 Docs
 
 Visit:
