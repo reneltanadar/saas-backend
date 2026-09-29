@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status,Request
 from sqlalchemy.orm import Session
 from app.schemas.tenant import TenantCreate, TenantUpdate, TenantResponse
 from app.services import tenant_service
 from app.database import get_db
 from app.auth.dependencies import get_current_user
 from app.models.user import User
+from app.middleware.rate_limit import limiter
 
 router = APIRouter(prefix="/tenants", tags=["Tenants"])
 
@@ -20,7 +21,9 @@ async def get_tenant(tenant_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=TenantResponse)
+@limiter.limit("10/minute")
 async def create_tenant(
+    request:Request,
     data: TenantCreate,
     db: Session = Depends(get_db),
 ):

@@ -1,8 +1,12 @@
-from fastapi import FastAPI,Depends
+from fastapi import FastAPI
 from app.routers import users,companies,auth,tenants
 from app.errors import register_exception_handlers
+from app.middleware.rate_limit import limiter
+
 
 app=FastAPI(title="SaaS Backend")
+
+app.state.limiter=limiter
 
 register_exception_handlers(app)
 

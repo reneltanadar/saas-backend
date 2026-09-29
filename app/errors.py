@@ -1,6 +1,7 @@
 from fastapi import FastAPI,HTTPException,Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
 
 def create_error_response(
         status_code:int,
@@ -19,6 +20,14 @@ def create_error_response(
     )
 
 def register_exception_handlers(app:FastAPI):
+    @app.exception_handler(RateLimitExceeded)
+    async def rate_limit_handler(request:Request,exc:RateLimitExceeded):
+        return create_error_response(
+            status_code=429,
+            message="Too many requests - please slow down",
+            path=str(request.url.path),
+        )
+
     @app.exception_handler(HTTPException)
     async def http_exxcetion_handler(
         request:Request,
