@@ -4,12 +4,15 @@ from app.schemas.auth import RegisterRequest, LoginRequest
 from app.auth.hashing import hash_password, verify_password
 from app.auth.jwt import create_access_token
 from app.errors import ConflictError
+from app.logger import logger
 from fastapi import HTTPException, status
 
 
 def register_user(db: Session, data: RegisterRequest) -> User:
+    logger.info(f"Register attempt for email: {data.email}")
     existing = db.query(User).filter(User.email == data.email).first()
     if existing:
+        logger.warning(f"Registration failed - email already exists: {data.email}")
         raise ConflictError("Email already registered")
 
     new_user = User(
@@ -23,21 +26,26 @@ def register_user(db: Session, data: RegisterRequest) -> User:
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    logger.info(f"User Registered Successfully: {data.email} | tenant_id: {data.tenant_id}")
     return new_user
 
 
 def login_user(db: Session, data: LoginRequest) -> User:
+    logger.info(f"Login attempt for email: {data.email}")
     user = db.query(User).filter(User.email == data.email).first()
     if not user or not verify_password(data.password, user.hashed_password):
+        logger.warning(f"Login failed - invalid credentials for: {data.email}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
         )
     if not user.is_active:
+        logger.warning(f"Login failed - account deactivated: {data.email}")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Account is deactivated",
         )
+    logger.info(f"Login successful: {data.email} | role: {user.role}")
     return user
 
 

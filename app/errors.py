@@ -2,6 +2,7 @@ from fastapi import FastAPI,HTTPException,Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
+from app.logger import logger
 
 def create_error_response(
         status_code:int,
@@ -22,6 +23,8 @@ def create_error_response(
 def register_exception_handlers(app:FastAPI):
     @app.exception_handler(RateLimitExceeded)
     async def rate_limit_handler(request:Request,exc:RateLimitExceeded):
+        logger.warning(f"Rate limit exceeded: {request.url.path} from {request.client.host}")
+
         return create_error_response(
             status_code=429,
             message="Too many requests - please slow down",
@@ -33,6 +36,10 @@ def register_exception_handlers(app:FastAPI):
         request:Request,
         exc:HTTPException
     ):
+        if exc.status_code >= 500:
+            logger.error(f"HTTP {exc.status_code} on {request.url.path}: {exc.detail}")
+        elif exc.status_code >= 400:
+            logger.warning(f"HTTP {exc.status_code} on {request.url.path}: {exc.detail}")
         return create_error_response(
             status_code=exc.status_code,
             message=exc.detail,
@@ -52,7 +59,7 @@ def register_exception_handlers(app:FastAPI):
         )
 
         message=f"{location}: {first['msg']}"
-
+        logger.warning(f"Validation error on {request.url.path}: {message}")
         return create_error_response(
             status_code=422,
             message=message,
@@ -65,6 +72,7 @@ def register_exception_handlers(app:FastAPI):
         request:Request,
         exc:Exception
     ):
+        logger.error(f"Unexpected error on {request.url.path}: {str(exc)}", exc_info=True)
         return create_error_response(
             status_code=500,
             message="Internal Server Error",
