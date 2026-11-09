@@ -88,3 +88,6 @@ Docs
 Visit:
 http://localhost:8000/docs
 
+## Live API
+Swagger Docs:  https://saas-backend-6jl4.onrender.com/docs
+
