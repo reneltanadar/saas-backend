@@ -4,6 +4,8 @@ A multi-tenant SaaS REST API built with FastAPI, PostgreSQL, JWT authentication 
 
 Live API docs: https://saas-backend-6jl4.onrender.com/docs
 
+![Swagger UI](docs/swagger.png)
+
 ## Features
 
 - JWT authentication with bcrypt password hashing

@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.database import Base, get_db
 from main import app
+from app.middleware.rate_limit import limiter
 
 TEST_DATABASE_URL = "sqlite:///./test.db"
 
@@ -39,7 +40,11 @@ def client(db):
         yield test_client
     app.dependency_overrides.clear()
 
-
+@pytest.fixture(autouse=True)
+def disable_rate_limit():
+    limiter.enabled=False
+    yield
+    limiter.enabled=True
 # ── helpers ──────────────────────────────────────────────
 
 def create_tenant(client, name: str, slug: str) -> dict:
