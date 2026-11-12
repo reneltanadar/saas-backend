@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI,Request
 import time
 from app.routers import users,companies,auth,tenants
@@ -7,6 +8,13 @@ from app.logger import logger
 
 
 app=FastAPI(title="SaaS Backend")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.state.limiter=limiter
 
