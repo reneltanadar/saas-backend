@@ -10,7 +10,7 @@ from app.logger import logger
 app=FastAPI(title="SaaS Backend")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:5173","https://saas-frontend-sage.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
